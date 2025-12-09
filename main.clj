@@ -1,12 +1,46 @@
 (require '[clojure.set :as set])
 
+(defn valid-count? [coll]
+  (= (count coll) 6))
+
+(defn valid-range? [coll]
+  (reduce (fn [_ x]
+            (if (and (integer? x) (<= 1 x 48))
+              true
+              (reduced false)))
+          true
+          coll))
+
+(defn has-duplicates? [coll]
+  (let [result (reduce (fn [acc x]
+                         (if (contains? acc x)
+                           (reduced true)
+                           (conj acc x)))
+                       #{}
+                       coll)]
+    (if (true? result)
+      true
+      false)))
+
 (defn lucky-six [x]
-  (let [numbers (shuffle (range 1 49)) ;(print (shuffle (range 1 49))) Uzimamo izmešane brojeve od 1 do 48 i ubacujemo u numbers.
-        draw (set (take 6 numbers)) ;Uzimamo u draw 6 prvih elemenata iz numbers (ali to su nasumični jer smo gore radili shuffle).
-        user-input (set x)] ;Pravimo set od korisničkog inputa.
-    (let [hits (set/intersection draw user-input)]
-      (println "Izvuceni brojevi:" draw)
+  (cond
+    (not (valid-count? x))
+    (println "Greška: moraš uneti tačno 6 brojeva!")
+
+    (has-duplicates? x)
+    (println "Greška: ne smeš unositi duplikate!")
+
+    (not (valid-range? x))
+    (println "Greška: svi brojevi moraju biti celi između 1 i 48!")
+
+    :else
+    (let [numbers (shuffle (range 1 49))
+          draw (set (take 6 numbers))
+          user-input (set x)
+          hits (set/intersection draw user-input)]
+      (println "Izvučeni brojevi:" draw)
       (println "Tvoji brojevi:" user-input)
       (println "Pogodaka:" (count hits))
-      (println "Pogodjeni brojevi:" hits))))
-(lucky-six [3 7 11 22 35 46]) ;Treba napraviti zaštitu od duplih ulaza?
+      (println "Pogođeni brojevi:" hits))))
+
+(lucky-six [3 7 11 22 35 46])
